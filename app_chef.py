@@ -2,59 +2,93 @@ import streamlit as st
 import random
 
 # Configuration de la page
-st.set_page_config(page_title="Rommel Chef Master App", page_icon="🍳", layout="wide")
+st.set_page_config(page_title="Rommel Chef Master App", page_icon="🍳", layout="centered")
 
-# Style CSS personnalisé
+# --- DESIGN ULTRA-MODERN (CSS AVANCÉ) ---
 st.markdown("""
     <style>
-    .main { background-color: #0e1117; }
-    .stCard {
-        background-color: #161b22;
+    .stApp { background-color: #0b0f19; color: #f3f4f6; }
+    .chef-card {
+        background: linear-gradient(135deg, #161b22 0%, #1f242d 100%);
         border: 1px solid #30363d;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 15px;
+        padding: 24px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        transition: transform 0.2s ease;
     }
+    .chef-card:hover {
+        border-color: #58a6ff;
+    }
+    .badge-resto {
+        background-color: #1f6feb;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .badge-poste {
+        background-color: #238636;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    hr { border-color: #30363d !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- Sélecteur de langue dans la barre latérale ---
+# --- ANCRAGE HAUT DE PAGE ---
+st.markdown('<div id="top"></div>', unsafe_allow_html=True)
+
+# --- SÉLECTEUR DE LANGUE & NAVIGATION (BARRE LATÉRALE) ---
 st.sidebar.title("🍳 Master Chef Rommel")
 langue = st.sidebar.selectbox("🌐 Langue / Sprache :", ["Français", "Deutsch"])
 st.sidebar.markdown("---")
 mode = st.sidebar.radio("Navigation :", ["📖 Fiches Techniques Pro" if langue == "Français" else "📖 Technische Fächer", "🧠 Quiz d'Entraînement" if langue == "Français" else "🧠 Quiz-Training"])
 
-# Dictionnaires de traduction des éléments d'interface
+# Dictionnaires de traduction
 ui = {
     "Français": {
-        "titre_fiches": "📖 Cahier des 39 Fiches Techniques Professionnelles",
-        "sous_titre": "Toutes les fiches de poste de cuisine avec ingrédients en grammes, temps et étapes.",
+        "titre_fiches": "📖 Cahier des 39 Fiches Techniques",
+        "sous_titre": "Gestion professionnelle des postes et grammages exacts.",
+        "select_direct": "⚡ Accès direct à un menu spécifique :",
+        "tous_plats": "-- Tous les 39 Menus --",
         "filtre_resto": "Filtrer par Restaurant :",
         "filtre_poste": "Filtrer par Poste :",
         "tous": "Tous",
         "affichage": "Affichage de",
-        "fiches": "fiche(s) technique(s)",
-        " ingredients": "🧪 Ingrédients & Mesures (Grammes) :",
+        "fiches": "fiche(s)",
+        "ingredients": "🧪 Ingrédients & Mesures (Grammes) :",
         "etapes": "🔥 Étapes de Préparation & Cuisson :",
         "dressage": "🍽️ Dressage Standard :",
-        "titre_quiz": "🧠 Mode Quiz - Révision par Cœur des 39 Menus",
+        "btn_haut": "⬆️ Retour en haut de page",
+        "titre_quiz": "🧠 Mode Quiz - Révision par Cœur",
         "indice": "Préparation / Indice :",
-        "btn_voir": "Afficher la fiche technique complète",
+        "btn_voir": "Afficher la fiche complète",
         "btn_suivant": "Plat Suivant ➡️",
         "nom_plat": "Nom exact du plat :"
     },
     "Deutsch": {
-        "titre_fiches": "📖 Technische Rezepturen & Posten-Karten",
-        "sous_titre": "Alle Küchen-Fächer mit genauen Gramm-Angaben, Zeiten und Schritten.",
+        "titre_fiches": "📖 Das 39-Menü-Handbuch",
+        "titre_fiches": "📖 Technische Rezepturen & Posten",
+        "sous_titre": "Professionelles Küchenmanagement & exakte Gramm-Angaben.",
+        "select_direct": "⚡ Direktauswahl eines spezifischen Gerichts:",
+        "tous_plats": "-- Alle 39 Menüs --",
         "filtre_resto": "Nach Restaurant filtern:",
         "filtre_poste": "Nach Posten filtern:",
         "tous": "Alle",
         "affichage": "Anzeige von",
-        "fiches": "Technische Karte(n)",
-        " ingredients": "🧪 Zutaten & Maße (Gramm) :",
+        "fiches": "Karte(n)",
+        "ingredients": "🧪 Zutaten & Maße (Gramm) :",
         "etapes": "🔥 Zubereitung & Garprozess :",
         "dressage": "🍽️ Standard-Anrichten :",
-        "titre_quiz": "🧠 Quiz-Modus - Herz-Lernen der 39 Menüs",
+        "btn_haut": "⬆️ Nach oben springen",
+        "titre_quiz": "🧠 Quiz-Modus - Herz-Lernen",
         "indice": "Vorbereitung / Hinweis :",
         "btn_voir": "Vollständige Rezeptur anzeigen",
         "btn_suivant": "Nächstes Gericht ➡️",
@@ -64,7 +98,6 @@ ui = {
 
 # Base de données complète des 39 menus
 menus_data = [
-    # --- Landgasthof Kreuz ---
     {
         "nom": "1. Spargelcremesuppe", "resto": "Landgasthof Kreuz", "poste": "Entremet / Garde-manger",
         "temps": "Préparation : 15 min | Cuisson : 30 min",
@@ -342,11 +375,19 @@ menus_data = [
     }
 ]
 
-# --- Logique d'affichage ---
-if mode.startswith("📖"):
+# --- LOGIQUE D'AFFICHAGE ---
+if mode.startswith("📖") or mode.startswith("📖 Technische"):
     st.title(ui["titre_fiches"])
-    st.write(ui["sous_titre"])
+    st.caption(ui["sous_titre"])
+    st.markdown("---")
 
+    # --- SÉLECTEUR DIRECT DE PLAT ---
+    noms_plats = [ui["tous_plats"]] + [p["nom"] for p in menus_data]
+    plat_selectionne = st.selectbox(ui["select_direct"], noms_plats)
+
+    st.markdown("---")
+
+    # Filtres secondaires
     col1, col2 = st.columns(2)
     with col1:
         f_resto = st.selectbox(ui["filtre_resto"], [ui["tous"], "Landgasthof Kreuz", "Hof Höfen"])
@@ -354,28 +395,46 @@ if mode.startswith("📖"):
         postes_possibles = [ui["tous"]] + list(set([m['poste'] for m in menus_data]))
         f_poste = st.selectbox(ui["filtre_poste"], postes_possibles)
 
+    # Filtrage des plats
     plats_filtres = menus_data
-    if f_resto != ui["tous"]:
-        plats_filtres = [p for p in plats_filtres if p['resto'] == f_resto]
-    if f_poste != ui["tous"]:
-        plats_filtres = [p for p in plats_filtres if p['poste'] == f_poste]
+    if plat_selectionne != ui["tous_plats"]:
+        plats_filtres = [p for p in plats_filtres if p["nom"] == plat_selectionne]
+    else:
+        if f_resto != ui["tous"]:
+            plats_filtres = [p for p in plats_filtres if p['resto'] == f_resto]
+        if f_poste != ui["tous"]:
+            plats_filtres = [p for p in plats_filtres if p['poste'] == f_poste]
 
-    st.markdown(f"{ui['affichage']} **{len(plats_filtres)}** {ui['fiches']}")
+    st.write(f"*{ui['affichage']} **{len(plats_filtres)}** {ui['fiches']}*")
+    st.markdown("<br>", unsafe_allow_html=True)
 
+    # Affichage des cartes modernes
     for plat in plats_filtres:
         st.markdown(f"""
-            <div class="stCard">
-                <h3>{plat['nom']}</h3>
-                <p><b>Restaurant :</b> {plat['resto']} &nbsp;|&nbsp; <b>Poste :</b> <code>{plat['poste']}</code> &nbsp;|&nbsp; ⏱️ <em>{plat['temps']}</em></p>
-                <hr style="border-color: #30363d;">
-                <p><b>{ui[' ingredients']}</b><br>{plat['ingredients']}</p>
-                <p><b>{ui['etapes']}</b><br>{plat['etapes']}</p>
-                <p><b>{ui['dressage']}</b> {plat['dressage']}</p>
+            <div class="chef-card">
+                <h3 style="color: #58a6ff; margin-top: 0; margin-bottom: 10px;">{plat['nom']}</h3>
+                <div style="margin-bottom: 12px;">
+                    <span class="badge-resto">{plat['resto']}</span> &nbsp; 
+                    <span class="badge-poste">{plat['poste']}</span> &nbsp; 
+                    <span style="color: #d29922; font-size: 13px; font-weight: 500;">⏱️ {plat['temps']}</span>
+                </div>
+                <hr>
+                <p style="margin-bottom: 10px;"><strong style="color: #7ee787;">{ui['ingredients']}</strong><br>{plat['ingredients']}</p>
+                <p style="margin-bottom: 10px;"><strong style="color: #ff7b72;">{ui['etapes']}</strong><br>{plat['etapes']}</p>
+                <p style="margin-bottom: 0;"><strong style="color: #ffa657;">{ui['dressage']}</strong> {plat['dressage']}</p>
             </div>
         """, unsafe_allow_html=True)
 
+    # --- BOUTON RETOUR EN HAUT ---
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button(ui["btn_haut"], use_container_width=True):
+        st.markdown('<meta http-equiv="refresh" content="0;url=#top">', unsafe_allow_html=True)
+
 else:
+    # --- MODE QUIZ ---
     st.title(ui["titre_quiz"])
+    st.markdown("---")
+    
     if 'quiz_item' not in st.session_state:
         st.session_state.quiz_item = random.choice(menus_data)
         st.session_state.reveal = False
@@ -385,16 +444,20 @@ else:
     st.write(f"**{ui['indice']}** {item['etapes'][:120]}...")
 
     if not st.session_state.reveal:
-        if st.button(ui["btn_voir"]):
+        if st.button(ui["btn_voir"], use_container_width=True):
             st.session_state.reveal = True
             st.rerun()
     else:
         st.success(f"🎯 **{ui['nom_plat']} {item['nom']}**")
         ingredients_nettoyes = item['ingredients'].replace('<br>', '\n')
-        st.write(f"**Ingrédients :**\n{ingredients_nettoyes}")
-        st.write(f"**Dressage :** {item['dressage']}")
+        st.markdown(f"""
+            <div class="chef-card">
+                <p><strong>Ingrédients :</strong><br>{ingredients_nettoyes}</p>
+                <p><strong>Dressage :</strong> {item['dressage']}</p>
+            </div>
+        """, unsafe_allow_html=True)
         
-        if st.button(ui["btn_suivant"]):
+        if st.button(ui["btn_suivant"], use_container_width=True):
             st.session_state.quiz_item = random.choice(menus_data)
             st.session_state.reveal = False
             st.rerun()
