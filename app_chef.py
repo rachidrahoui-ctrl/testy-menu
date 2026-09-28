@@ -4,7 +4,7 @@ import random
 # Configuration de la page
 st.set_page_config(page_title="Rommel Chef Master App", page_icon="🍳", layout="centered")
 
-# --- DESIGN ULTRA-MODERN (CSS AVANCÉ) ---
+# --- DESIGN ULTRA-MODERN (CSS AVANCÉ & FORCAGE DE MISE À JOUR) ---
 st.markdown("""
     <style>
     .stApp { background-color: #0b0f19; color: #f3f4f6; }
@@ -15,10 +15,6 @@ st.markdown("""
         border-radius: 14px;
         margin-bottom: 20px;
         box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        transition: transform 0.2s ease;
-    }
-    .chef-card:hover {
-        border-color: #58a6ff;
     }
     .badge-resto {
         background-color: #1f6feb;
@@ -42,14 +38,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- ANCRAGE HAUT DE PAGE ---
-st.markdown('<div id="top"></div>', unsafe_allow_html=True)
-
 # --- SÉLECTEUR DE LANGUE & NAVIGATION (BARRE LATÉRALE) ---
 st.sidebar.title("🍳 Master Chef Rommel")
-langue = st.sidebar.selectbox("🌐 Langue / Sprache :", ["Français", "Deutsch"])
+langue = st.sidebar.selectbox("🌐 Langue / Sprache :", ["Français", "Deutsch"], key="lang_select")
 st.sidebar.markdown("---")
-mode = st.sidebar.radio("Navigation :", ["📖 Fiches Techniques Pro" if langue == "Français" else "📖 Technische Fächer", "🧠 Quiz d'Entraînement" if langue == "Français" else "🧠 Quiz-Training"])
+mode_options = ["📖 Fiches Techniques Pro", "🧠 Quiz d'Entraînement"] if langue == "Français" else ["📖 Technische Fächer", "🧠 Quiz-Training"]
+mode = st.sidebar.radio("Navigation :", mode_options, key="nav_select")
 
 # Dictionnaires de traduction
 ui = {
@@ -74,7 +68,6 @@ ui = {
         "nom_plat": "Nom exact du plat :"
     },
     "Deutsch": {
-        "titre_fiches": "📖 Das 39-Menü-Handbuch",
         "titre_fiches": "📖 Technische Rezepturen & Posten",
         "sous_titre": "Professionelles Küchenmanagement & exakte Gramm-Angaben.",
         "select_direct": "⚡ Direktauswahl eines spezifischen Gerichts:",
@@ -280,8 +273,6 @@ menus_data = [
         "etapes": "1. Superposer compotée, mascarpone et crumble.",
         "dressage": "Assiette creuse, textures harmonieuses."
     },
-
-    # --- Hof Höfen ---
     {
         "nom": "27. Pommes terre & légumes truffe", "resto": "Hof Höfen", "poste": "Garde-manger / Friture",
         "temps": "Cuisson : 5 min",
@@ -375,27 +366,27 @@ menus_data = [
     }
 ]
 
-# --- LOGIQUE D'AFFICHAGE ---
-if mode.startswith("📖") or mode.startswith("📖 Technische"):
+# --- LOGIQUE D'AFFICHAGE PRINCIPALE ---
+if mode.startswith("📖"):
     st.title(ui["titre_fiches"])
     st.caption(ui["sous_titre"])
     st.markdown("---")
 
     # --- SÉLECTEUR DIRECT DE PLAT ---
     noms_plats = [ui["tous_plats"]] + [p["nom"] for p in menus_data]
-    plat_selectionne = st.selectbox(ui["select_direct"], noms_plats)
+    plat_selectionne = st.selectbox(ui["select_direct"], noms_plats, key="direct_select")
 
     st.markdown("---")
 
-    # Filtres secondaires
+    # Filtres secondaires par Restaurant / Poste
     col1, col2 = st.columns(2)
     with col1:
-        f_resto = st.selectbox(ui["filtre_resto"], [ui["tous"], "Landgasthof Kreuz", "Hof Höfen"])
+        f_resto = st.selectbox(ui["filtre_resto"], [ui["tous"], "Landgasthof Kreuz", "Hof Höfen"], key="resto_filter")
     with col2:
-        postes_possibles = [ui["tous"]] + list(set([m['poste'] for m in menus_data]))
-        f_poste = st.selectbox(ui["filtre_poste"], postes_possibles)
+        postes_possibles = [ui["tous"]] + sorted(list(set([m['poste'] for m in menus_data])))
+        f_poste = st.selectbox(ui["filtre_poste"], postes_possibles, key="poste_filter")
 
-    # Filtrage des plats
+    # Filtrage effectif
     plats_filtres = menus_data
     if plat_selectionne != ui["tous_plats"]:
         plats_filtres = [p for p in plats_filtres if p["nom"] == plat_selectionne]
@@ -405,10 +396,10 @@ if mode.startswith("📖") or mode.startswith("📖 Technische"):
         if f_poste != ui["tous"]:
             plats_filtres = [p for p in plats_filtres if p['poste'] == f_poste]
 
-    st.write(f"*{ui['affichage']} **{len(plats_filtres)}** {ui['fiches']}*")
+    st.markdown(f"*{ui['affichage']} **{len(plats_filtres)}** {ui['fiches']}*")
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Affichage des cartes modernes
+    # Affichage en cartes modernes
     for plat in plats_filtres:
         st.markdown(f"""
             <div class="chef-card">
@@ -425,10 +416,10 @@ if mode.startswith("📖") or mode.startswith("📖 Technische"):
             </div>
         """, unsafe_allow_html=True)
 
-    # --- BOUTON RETOUR EN HAUT ---
+    # --- BOUTON DE REMONTÉE EN HAUT ---
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button(ui["btn_haut"], use_container_width=True):
-        st.markdown('<meta http-equiv="refresh" content="0;url=#top">', unsafe_allow_html=True)
+        st.rerun()
 
 else:
     # --- MODE QUIZ ---
